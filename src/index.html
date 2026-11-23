@@ -1,0 +1,574 @@
+<title>Enfermería con Hafsa MCQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: single mobile-first column; home = sections > topics, quiz = one question card with explanation drawer */
+:root{
+  --bg:#F3F7F8; --surface:#FFFFFF; --ink:#0E2233; --muted:#55697A; --line:#D7E2E7;
+  --navy:#0C447C; --teal:#1D9E75; --teal-soft:#E3F4EE;
+  --ok:#1F9D55; --ok-soft:#E4F6EB; --bad:#D14343; --bad-soft:#FCEBEB;
+  --display:"Sora", "Segoe UI", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1620; --surface:#13222E; --ink:#E6EEF3; --muted:#93A7B6; --line:#24384A;
+  --navy:#7FB2EA; --teal:#3CC497; --teal-soft:#14352C;
+  --ok:#43C47A; --ok-soft:#143323; --bad:#F06C6C; --bad-soft:#3A1A1C; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0B1620; --surface:#13222E; --ink:#E6EEF3; --muted:#93A7B6; --line:#24384A;
+  --navy:#7FB2EA; --teal:#3CC497; --teal-soft:#14352C;
+  --ok:#43C47A; --ok-soft:#143323; --bad:#F06C6C; --bad-soft:#3A1A1C; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--navy);display:grid;place-items:center;flex:none}
+.logo svg{width:28px;height:28px}
+.brand h1{font-size:1.25rem;color:var(--navy)}
+.brand p{margin:0;color:var(--muted);font-size:.85rem}
+
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1 1 120px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.stat b{display:block;font-family:var(--display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:2px solid var(--navy);padding-bottom:6px}
+.section-h h2{font-size:1.1rem;color:var(--navy)}
+.section-h span{font-size:.8rem;color:var(--muted)}
+.topics{display:flex;flex-direction:column;gap:12px}
+.topic{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.topic-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.topic h3{font-size:1.05rem}
+.topic .meta{font-size:.82rem;color:var(--muted)}
+.pct{font-family:var(--display);font-weight:600;color:var(--teal);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .g{background:var(--ok)} .bar .r{background:var(--bad)}
+.legend{display:flex;gap:14px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;background:var(--c)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:10px 16px;font-weight:600;background:var(--navy);color:var(--surface)}
+.btn.alt{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.alt.warn{border-color:var(--bad);color:var(--bad)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* quiz */
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.back{background:none;border:none;color:var(--muted);padding:6px 0;font-size:.9rem}
+.counter{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.progress{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--teal);transition:width .25s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);font-weight:600}
+.question{font-family:var(--display);font-size:1.15rem;font-weight:600;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;transition:border-color .15s,background .15s}
+.opt:hover:not([disabled]){border-color:var(--navy)}
+.opt .letter{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:600;color:var(--muted)}
+.opt[disabled]{cursor:default}
+.opt.correct{background:var(--ok-soft);border-color:var(--ok)}
+.opt.correct .letter{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt.wrong .letter{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.opt.dim{opacity:.6}
+
+.verdict{font-family:var(--display);font-weight:600;font-size:1rem}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.explain{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.ex{border-radius:10px;padding:10px 12px;background:var(--bg);border-left:4px solid var(--c)}
+.ex .h{font-weight:600;font-size:.9rem;margin-bottom:2px}
+.ex p{margin:0;font-size:.92rem;color:var(--ink)}
+.ex .tag{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-left:6px}
+.next{align-self:flex-end}
+
+.result{text-align:center;align-items:center}
+.big{font-family:var(--display);font-size:3rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1}
+.note{font-size:.78rem;color:var(--muted);text-align:center}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== DATA =====
+   Cada pregunta: q = enunciado; o = 3 opciones [texto, explicación]. La PRIMERA opción es siempre la correcta
+   (en pantalla el orden se mezcla). Contenido redactado con palabras propias, solo para estudio personal. */
+const SECTIONS = [
+{ id:"metodologia", name:"Metodología de Enfermería", topics:[
+{ id:"pae", name:"El proceso enfermero", qs:[
+
+// --- Definición ---
+{q:"¿Cuál es la mejor definición del proceso enfermero?", o:[
+ ["Un método sistemático, racional y dinámico que guía la práctica profesional de enfermería.","Es la definición del tema: sistemático porque sigue un orden, racional porque se basa en el razonamiento y dinámico porque se adapta a los cambios del paciente. Además guía todo el trabajo profesional de la enfermera."],
+ ["Una lista fija de tareas que se repite igual con todos los pacientes.","Es incorrecto porque el proceso enfermero es dinámico e individualizado: cambia según la situación de cada paciente. Una lista fija igual para todos sería lo contrario."],
+ ["Un protocolo médico para diagnosticar enfermedades.","Es incorrecto porque no es un protocolo médico y no sirve para diagnosticar enfermedades. Es el método propio de enfermería y se centra en las respuestas humanas a los problemas de salud."]]},
+
+{q:"¿Qué permite identificar el proceso enfermero?", o:[
+ ["Las necesidades de salud de la persona, la familia o la comunidad.","Correcto: el proceso enfermero sirve para detectar qué necesidades de salud tiene quien recibe los cuidados, y eso puede ser una persona, una familia o una comunidad entera."],
+ ["Solo las enfermedades del paciente que está ingresado.","Incorrecto por dos motivos: no busca enfermedades (eso es tarea médica) sino necesidades de salud, y no se limita al paciente ingresado; también se aplica a familias y comunidades."],
+ ["Los gastos y recursos económicos del hospital.","Incorrecto: la gestión económica no es el objetivo del proceso enfermero. Su función es identificar necesidades de salud para planificar cuidados."]]},
+
+{q:"¿A quién se puede aplicar el proceso enfermero?", o:[
+ ["A una persona, a una familia o a una comunidad.","Correcto: el tema dice que identifica necesidades de salud de la persona, la familia o la comunidad. Por eso se usa en el hospital, en atención primaria y en salud comunitaria."],
+ ["Solo a pacientes hospitalizados.","Incorrecto: no se limita al hospital. También se usa en centros de salud, en domicilios y con grupos o comunidades."],
+ ["Solo a personas que ya están enfermas.","Incorrecto: una de sus finalidades es prevenir la enfermedad y promover la salud, así que también se aplica a personas sanas."]]},
+
+{q:"¿En qué se fundamenta el proceso enfermero?", o:[
+ ["En el método científico.","Correcto: el proceso enfermero es la aplicación del método científico a los cuidados. Igual que en ciencia: se recogen datos, se identifica el problema, se planifica, se actúa y se comprueba el resultado."],
+ ["En la intuición y la experiencia personal de cada enfermera.","Incorrecto: la experiencia ayuda, pero el proceso no se basa en la intuición. Se basa en un método ordenado y en la evidencia, para que los cuidados no dependan de quién los dé."],
+ ["En las órdenes que da el médico.","Incorrecto: el proceso enfermero es la metodología propia de enfermería. Se coordina con el equipo, pero no se basa en órdenes médicas sino en el método científico."]]},
+
+{q:"¿Qué otro nombre recibe el proceso enfermero (PE)?", o:[
+ ["Proceso de Atención de Enfermería (PAE).","Correcto: PE y PAE son lo mismo. En España y Latinoamérica verás los dos nombres, así que conviene conocer ambos."],
+ ["Plan de Cuidados Estandarizado (PCE).","Incorrecto: un PCE es un documento con intervenciones ya definidas para un problema concreto. Se usa dentro del proceso enfermero, pero no es otro nombre del proceso."],
+ ["Protocolo de Asistencia Especializada (PAE).","Incorrecto: las siglas son las mismas (PAE), pero el nombre está inventado. PAE significa Proceso de Atención de Enfermería."]]},
+
+{q:"Según la definición, ¿cómo son los cuidados que se proporcionan con el PAE?", o:[
+ ["Individualizados, seguros y basados en la evidencia.","Correcto: individualizados porque se adaptan a cada persona, seguros porque protegen al paciente y basados en la evidencia porque se apoyan en conocimiento científico."],
+ ["Iguales para todos, rápidos y basados en la costumbre.","Incorrecto: es lo contrario. Los cuidados no son iguales para todos (son individualizados) y no se basan en la costumbre sino en la evidencia."],
+ ["Decididos solo por el médico y aplicados por la enfermera.","Incorrecto: en el PAE la enfermera valora, diagnostica, planifica, ejecuta y evalúa sus propios cuidados. No es solo aplicar lo que decide otra persona."]]},
+
+{q:"El proceso enfermero es la aplicación del método científico a…", o:[
+ ["…la práctica asistencial.","Correcto: lleva el método científico al trabajo diario con el paciente, es decir, a la práctica asistencial (los cuidados que damos)."],
+ ["…la investigación de laboratorio solamente.","Incorrecto: el método científico se usa en el laboratorio, pero el proceso enfermero lo aplica a la atención directa de las personas, no al laboratorio."],
+ ["…la gestión administrativa del hospital.","Incorrecto: la gestión administrativa no es la práctica asistencial. El PAE se centra en los cuidados al paciente."]]},
+
+{q:"¿Qué tipo de instrumento es el proceso enfermero?", o:[
+ ["Un instrumento práctico.","Correcto: no es solo teoría; es una herramienta que se usa en la práctica diaria para organizar los cuidados de cada paciente."],
+ ["Un instrumento solo teórico para los exámenes.","Incorrecto: aunque se estudia en clase, su objetivo es usarlo en la práctica real, en cada turno y con cada paciente."],
+ ["Un instrumento legal para firmar contratos.","Incorrecto: no tiene esa función. Los registros del proceso tienen valor legal, pero el proceso en sí es una herramienta de cuidado."]]},
+
+{q:"El proceso enfermero es una manera de…", o:[
+ ["…aplicar la teoría al ejercicio profesional.","Correcto: une lo que estudias (la teoría) con lo que haces con el paciente (la práctica). Es el puente entre las dos."],
+ ["…sustituir la teoría por la práctica.","Incorrecto: no sustituye la teoría, la usa. Sin teoría no podrías valorar ni diagnosticar bien."],
+ ["…estudiar la teoría sin necesidad de practicar.","Incorrecto: su objetivo es justamente llevar la teoría a la práctica, no quedarse solo en el estudio."]]},
+
+{q:"Según el tema, el PAE es un método sistemático y organizado para brindar cuidados…", o:[
+ ["…eficaces y eficientes, orientados al logro de objetivos.","Correcto: eficaces porque consiguen el resultado, eficientes porque usan bien el tiempo y los recursos, y orientados a objetivos porque siempre buscan una meta concreta."],
+ ["…rápidos, sin necesidad de fijar objetivos.","Incorrecto: la rapidez no es el objetivo, y fijar objetivos es una parte esencial del proceso (fase de planificación)."],
+ ["…costosos pero completos, aunque no tengan una meta.","Incorrecto: el proceso busca la eficiencia (no gastar de más) y siempre está orientado a objetivos."]]},
+
+{q:"¿Qué significa que un cuidado sea eficiente?", o:[
+ ["Que consigue el resultado usando bien los recursos (tiempo, material y personal).","Correcto: eficiente es lograr el objetivo con el mejor uso posible de los recursos. Por eso el tema dice que el proceso busca los mejores resultados de la manera más eficiente."],
+ ["Que consigue el resultado, sin importar cuántos recursos use.","Incorrecto: eso es ser eficaz. Eficaz = consigue el resultado. Eficiente = lo consigue sin malgastar recursos."],
+ ["Que usa pocos recursos, aunque no consiga el resultado.","Incorrecto: gastar poco sin lograr el objetivo no es eficiente; simplemente no funciona. La eficiencia exige conseguir el resultado."]]},
+
+{q:"El proceso enfermero es la herramienta esencial de…", o:[
+ ["…el pensamiento crítico en enfermería.","Correcto: obliga a analizar datos, razonar y decidir de forma fundamentada en cada paso. Por eso se dice que es la herramienta del pensamiento crítico."],
+ ["…la memoria de la enfermera.","Incorrecto: no se trata de memorizar, sino de razonar con los datos de cada paciente."],
+ ["…la burocracia del hospital.","Incorrecto: se registra por escrito, pero su objetivo no es el papeleo sino pensar y decidir bien los cuidados."]]},
+
+{q:"Con el proceso enfermero se proporcionan cuidados…", o:[
+ ["…deliberados, organizados y orientados a resultados.","Correcto: deliberados (pensados con intención), organizados (siguen un orden) y orientados a resultados (buscan un objetivo medible)."],
+ ["…improvisados según lo que vaya pasando.","Incorrecto: el proceso es dinámico y se adapta, pero eso no es improvisar. Cada cambio se basa en una nueva valoración."],
+ ["…automáticos, siempre en el mismo orden y sin objetivos.","Incorrecto: los cuidados no son automáticos ni iguales para todos, y siempre tienen objetivos."]]},
+
+{q:"¿Qué significa que los cuidados sean “deliberados”?", o:[
+ ["Que se piensan y se deciden con intención, por una razón concreta.","Correcto: un cuidado deliberado no se hace por costumbre; se hace porque la enfermera ha analizado la situación y sabe por qué lo hace."],
+ ["Que se hacen por costumbre, como siempre se han hecho.","Incorrecto: hacerlo por rutina es justo lo contrario de deliberado. El tema insiste en decidir con evidencia, no con rutina."],
+ ["Que se hacen lo más rápido posible.","Incorrecto: deliberado no tiene que ver con la velocidad, sino con pensar antes de actuar."]]},
+
+// --- Fases ---
+{q:"¿Cuántas fases tiene el proceso enfermero?", o:[
+ ["Cinco.","Correcto: valoración, diagnóstico, planificación, ejecución y evaluación."],
+ ["Cuatro.","Incorrecto: algunos modelos antiguos tenían menos fases, pero hoy se usan cinco. Si dices cuatro, te falta una (normalmente el diagnóstico)."],
+ ["Seis.","Incorrecto: no hay seis fases. Son cinco, y la sexta no existe en el modelo actual."]]},
+
+{q:"¿Cuál es el orden correcto de las fases?", o:[
+ ["Valoración → Diagnóstico → Planificación → Ejecución → Evaluación.","Correcto: primero recoges datos, después identificas el problema, luego planificas, después actúas y por último compruebas si funcionó."],
+ ["Valoración → Planificación → Diagnóstico → Evaluación → Ejecución.","Incorrecto: no puedes planificar sin saber cuál es el problema (diagnóstico), y no puedes evaluar algo que todavía no has hecho (ejecución)."],
+ ["Diagnóstico → Valoración → Planificación → Evaluación → Ejecución.","Incorrecto: no puedes diagnosticar sin datos; la valoración siempre va primero. Y la evaluación va al final, después de ejecutar."]]},
+
+{q:"¿Cómo se relacionan entre sí las cinco fases?", o:[
+ ["Están interrelacionadas: cada una depende de las demás.","Correcto: el tema habla de cinco fases interrelacionadas. Por ejemplo, si la valoración es mala, el diagnóstico y el plan también lo serán."],
+ ["Son independientes y se pueden hacer por separado.","Incorrecto: no son independientes. Cada fase usa la información de la anterior."],
+ ["Cada fase se hace una sola vez y no se vuelve atrás.","Incorrecto: el proceso es dinámico; podemos volver atrás (por ejemplo, revalorar) cuando cambia la situación del paciente."]]},
+
+{q:"¿Cuál es la primera fase del proceso enfermero?", o:[
+ ["La valoración.","Correcto: todo empieza recogiendo datos del paciente. Sin datos no se puede decidir nada."],
+ ["El diagnóstico enfermero.","Incorrecto: el diagnóstico es la segunda fase. Necesita los datos de la valoración para hacerse."],
+ ["La planificación.","Incorrecto: es la tercera fase. Primero hay que conocer al paciente y su problema."]]},
+
+{q:"¿Cuál es la última fase del proceso enfermero?", o:[
+ ["La evaluación.","Correcto: al final se comprueba si las intervenciones funcionaron y si se alcanzaron los objetivos."],
+ ["La ejecución.","Incorrecto: la ejecución es la cuarta fase. Después de hacer los cuidados, falta comprobar si funcionaron."],
+ ["La planificación.","Incorrecto: la planificación es la tercera fase; todavía faltan la ejecución y la evaluación."]]},
+
+{q:"¿Qué se hace en la fase de valoración?", o:[
+ ["Recoger y organizar datos sobre el estado de salud del paciente.","Correcto: en la valoración se reúne la información (entrevista, observación, constantes, exploración) y se ordena para poder usarla."],
+ ["Analizar los datos para identificar respuestas humanas a los problemas de salud.","Incorrecto: eso es el diagnóstico enfermero, la segunda fase. En la valoración aún no se interpretan los datos; se recogen y organizan."],
+ ["Poner en práctica las intervenciones planificadas.","Incorrecto: eso es la ejecución, la cuarta fase."]]},
+
+{q:"¿Qué se hace en la fase de diagnóstico enfermero?", o:[
+ ["Analizar e interpretar los datos para identificar respuestas humanas a los problemas de salud.","Correcto: con los datos de la valoración, la enfermera razona y detecta cómo está respondiendo la persona a su problema de salud."],
+ ["Identificar qué enfermedad tiene el paciente.","Incorrecto: identificar la enfermedad es el diagnóstico médico. El diagnóstico enfermero se centra en la respuesta de la persona (dolor, riesgo de caídas, ansiedad…)."],
+ ["Recoger los datos del paciente.","Incorrecto: eso es la valoración, la primera fase."]]},
+
+{q:"El diagnóstico enfermero identifica…", o:[
+ ["…respuestas humanas a los problemas de salud.","Correcto: por ejemplo, ante una fractura, el diagnóstico enfermero puede ser dolor o dificultad para moverse. Se centra en cómo vive y responde la persona."],
+ ["…la enfermedad que causa los síntomas.","Incorrecto: eso es tarea del diagnóstico médico (por ejemplo, “fractura de cadera”)."],
+ ["…el tratamiento con medicamentos que necesita.","Incorrecto: el diagnóstico no decide medicación. Identifica respuestas humanas para planificar cuidados."]]},
+
+{q:"¿Qué se hace en la fase de planificación?", o:[
+ ["Establecer objetivos y diseñar las intervenciones enfermeras para alcanzar los resultados esperados.","Correcto: se decide qué se quiere conseguir (objetivos) y cómo se va a conseguir (intervenciones)."],
+ ["Poner en práctica las intervenciones.","Incorrecto: eso es la ejecución. En la planificación todavía se está decidiendo qué hacer."],
+ ["Comprobar si las intervenciones han sido eficaces.","Incorrecto: eso es la evaluación, la última fase."]]},
+
+{q:"¿Qué se hace en la fase de ejecución?", o:[
+ ["Implementar (llevar a cabo) las intervenciones planificadas.","Correcto: es el momento de hacer los cuidados que se decidieron en la planificación."],
+ ["Diseñar las intervenciones.","Incorrecto: diseñarlas es planificación. En la ejecución se hacen."],
+ ["Recoger datos sobre el estado de salud.","Incorrecto: eso es la valoración. (Durante la ejecución también se observa al paciente, pero la fase se define por realizar las intervenciones.)"]]},
+
+{q:"¿Qué se hace en la fase de evaluación?", o:[
+ ["Valorar la eficacia de las intervenciones y modificar el plan si es necesario.","Correcto: se comprueba si se lograron los objetivos. Si no, se revisa y se cambia el plan."],
+ ["Recoger los primeros datos del paciente al ingreso.","Incorrecto: eso es la valoración inicial, la primera fase."],
+ ["Establecer los objetivos del plan.","Incorrecto: los objetivos se establecen en la planificación. En la evaluación se comprueba si se han cumplido."]]},
+
+{q:"¿En qué fase se decide modificar el plan de cuidados si no está funcionando?", o:[
+ ["En la evaluación.","Correcto: según el tema, la evaluación valora la eficacia y modifica el plan si es necesario."],
+ ["En la ejecución.","Incorrecto: en la ejecución se llevan a cabo las intervenciones; comprobar si funcionan y decidir cambios corresponde a la evaluación."],
+ ["En la valoración inicial.","Incorrecto: la valoración inicial recoge datos al principio; todavía no hay un plan que modificar."]]},
+
+{q:"En la planificación se establecen objetivos para alcanzar…", o:[
+ ["…los resultados esperados en el paciente.","Correcto: los objetivos describen el resultado que se espera conseguir en la persona."],
+ ["…un menor gasto del hospital.","Incorrecto: la eficiencia importa, pero los objetivos del plan se refieren a la salud del paciente."],
+ ["…el diagnóstico médico.","Incorrecto: el diagnóstico médico no es un objetivo enfermero. Los objetivos se refieren a resultados en el paciente."]]},
+
+{q:"Tomas la tensión a un paciente, le preguntas cómo ha dormido y lo anotas. ¿En qué fase estás?", o:[
+ ["Valoración.","Correcto: estás recogiendo datos objetivos (tensión) y subjetivos (cómo dice que ha dormido). Eso es valorar."],
+ ["Diagnóstico.","Incorrecto: todavía no estás interpretando los datos para identificar un problema; solo los estás recogiendo."],
+ ["Evaluación.","Incorrecto: no estás comprobando si se cumple un objetivo del plan, sino recogiendo información."]]},
+
+{q:"Con los datos recogidos, concluyes que una paciente tiene riesgo de caídas. ¿En qué fase estás?", o:[
+ ["Diagnóstico.","Correcto: has analizado e interpretado los datos y has identificado una respuesta humana (riesgo de caídas)."],
+ ["Planificación.","Incorrecto: aún no has fijado objetivos ni elegido intervenciones; solo has identificado el problema."],
+ ["Ejecución.","Incorrecto: no estás haciendo ningún cuidado todavía."]]},
+
+{q:"Decides que el objetivo es que el paciente camine con andador sin caerse en 3 días, y eliges cómo ayudarle. ¿En qué fase estás?", o:[
+ ["Planificación.","Correcto: estás estableciendo un objetivo y diseñando intervenciones."],
+ ["Ejecución.","Incorrecto: todavía no estás haciendo las intervenciones, solo decidiéndolas."],
+ ["Evaluación.","Incorrecto: no estás comprobando resultados; el plan aún no se ha aplicado."]]},
+
+{q:"Ayudas al paciente a caminar con el andador, tal como estaba previsto en el plan. ¿En qué fase estás?", o:[
+ ["Ejecución.","Correcto: estás llevando a cabo una intervención planificada."],
+ ["Planificación.","Incorrecto: la planificación ya se hizo; ahora estás actuando."],
+ ["Valoración.","Incorrecto: no estás recogiendo datos de entrada, estás aplicando el cuidado."]]},
+
+{q:"A los 3 días compruebas si el paciente camina con andador sin caerse, como se había previsto. ¿En qué fase estás?", o:[
+ ["Evaluación.","Correcto: comparas el resultado con el objetivo fijado para saber si se ha cumplido."],
+ ["Valoración.","Incorrecto: observas al paciente, pero el fin es comprobar un objetivo del plan. Eso es evaluar."],
+ ["Diagnóstico.","Incorrecto: no estás identificando un problema nuevo, sino midiendo el resultado de tus cuidados."]]},
+
+// --- Características ---
+{q:"¿Cuáles son las cuatro características del proceso enfermero?", o:[
+ ["Dinámico, sistemático, humanístico y centrado en los objetivos.","Correcto: son las cuatro características del tema."],
+ ["Estático, sistemático, técnico y centrado en la enfermedad.","Incorrecto: el proceso no es estático (es dinámico) y no se centra en la enfermedad sino en la persona y en los objetivos."],
+ ["Dinámico, intuitivo, humanístico y centrado en el médico.","Incorrecto: no es intuitivo (es sistemático y científico) ni está centrado en el médico (está centrado en los objetivos y en la persona)."]]},
+
+{q:"¿Cuál de estas NO es una característica del proceso enfermero?", o:[
+ ["Rígido.","Correcto, NO lo es: el proceso es dinámico, es decir, lo contrario de rígido. Se adapta a los cambios del paciente."],
+ ["Humanístico.","Sí es una característica: centra el cuidado en la persona integral."],
+ ["Sistemático.","Sí es una característica: sigue un orden lógico y estructurado."]]},
+
+{q:"¿Qué significa que el proceso enfermero sea dinámico?", o:[
+ ["Que se ajusta a los cambios del paciente.","Correcto: si el paciente cambia, el plan cambia. Por eso se puede volver a valorar y modificar en cualquier momento."],
+ ["Que sigue un orden lógico y estructurado.","Incorrecto: eso define al proceso como sistemático."],
+ ["Que busca resultados concretos y evaluables.","Incorrecto: eso define al proceso como centrado en los objetivos."]]},
+
+{q:"Otra forma de explicar que el proceso es dinámico es que…", o:[
+ ["…podemos movernos hacia adelante y hacia atrás entre las fases, combinando acciones.","Correcto: por ejemplo, durante la ejecución puedes detectar un dato nuevo y volver a valorar. Las fases se solapan y se combinan."],
+ ["…hay que terminar cada fase por completo y nunca volver a una anterior.","Incorrecto: eso sería un proceso rígido. El proceso enfermero permite volver atrás."],
+ ["…las fases se pueden hacer en cualquier orden sin lógica.","Incorrecto: ser dinámico no significa desordenado. Hay un orden lógico (es sistemático), pero se puede volver atrás cuando hace falta."]]},
+
+{q:"¿Qué significa que el proceso enfermero sea sistemático?", o:[
+ ["Que sigue un orden lógico y estructurado: es un método de solución de problemas en 5 pasos.","Correcto: siempre sigue los mismos pasos ordenados (valoración, diagnóstico, planificación, ejecución, evaluación)."],
+ ["Que se ajusta a los cambios del paciente.","Incorrecto: eso es ser dinámico."],
+ ["Que tiene en cuenta los valores y deseos del paciente.","Incorrecto: eso es ser humanístico."]]},
+
+{q:"¿Qué significa que el proceso enfermero sea humanístico?", o:[
+ ["Que centra el cuidado en la persona integral y tiene en cuenta sus valores, intereses y deseos.","Correcto: considera a la persona completa (mente, cuerpo y espíritu), no solo su enfermedad."],
+ ["Que se centra solo en el cuerpo y en la enfermedad.","Incorrecto: es lo contrario de humanístico. El cuidado no se limita al cuerpo enfermo."],
+ ["Que las decisiones se basan en la opinión de la enfermera.","Incorrecto: humanístico significa respetar lo que la persona valora y desea, no imponer la opinión del profesional."]]},
+
+{q:"Cuando se habla de la “persona integral”, ¿qué se tiene en cuenta?", o:[
+ ["Mente, cuerpo y espíritu.","Correcto: el enfoque humanístico considera todas las dimensiones de la persona."],
+ ["Solo el órgano enfermo.","Incorrecto: centrarse solo en el órgano enfermo es un enfoque biomédico, no integral."],
+ ["Solo los datos de las pruebas clínicas.","Incorrecto: las pruebas son importantes, pero la persona integral incluye también sus emociones, valores y creencias."]]},
+
+{q:"¿Qué significa que el proceso enfermero esté centrado en los objetivos?", o:[
+ ["Que busca resultados concretos y evaluables para que la persona obtenga los mejores resultados de la forma más eficiente.","Correcto: cada plan tiene metas claras que se pueden medir después en la evaluación."],
+ ["Que se centra en terminar las tareas del turno, aunque no se vean resultados.","Incorrecto: lo importante no es hacer tareas, sino conseguir resultados en el paciente."],
+ ["Que busca resultados generales que no se pueden medir.","Incorrecto: los objetivos deben ser concretos y evaluables; si no se pueden medir, no se puede evaluar."]]},
+
+{q:"Una paciente prefiere que su aseo se haga por la tarde por motivos personales, y el equipo adapta el horario. ¿Qué característica se refleja?", o:[
+ ["Humanístico.","Correcto: se respetan los valores, intereses y deseos de la persona."],
+ ["Sistemático.","Incorrecto: ser sistemático es seguir un orden lógico en los pasos; aquí lo importante es respetar a la persona."],
+ ["Centrado en los objetivos.","Incorrecto: no se está definiendo un resultado medible; se está respetando una preferencia personal."]]},
+
+{q:"Un paciente empeora de repente. Vuelves a valorarlo y cambias el plan. ¿Qué característica se refleja?", o:[
+ ["Dinámico.","Correcto: el proceso se ajusta a los cambios del paciente y permite volver a fases anteriores."],
+ ["Humanístico.","Incorrecto: no se trata de valores o deseos del paciente, sino de adaptarse a un cambio en su estado."],
+ ["Sistemático.","Incorrecto: lo que destaca aquí es la adaptación al cambio, no el orden de los pasos."]]},
+
+{q:"Escribes en el plan: “El paciente caminará 20 metros con ayuda en 48 horas”. ¿Qué característica se refleja?", o:[
+ ["Centrado en los objetivos.","Correcto: es un resultado concreto, medible y con un plazo, que se podrá evaluar."],
+ ["Dinámico.","Incorrecto: no se refleja un cambio de plan, sino un objetivo concreto."],
+ ["Humanístico.","Incorrecto: no se refleja ningún valor o deseo de la persona, sino una meta medible."]]},
+
+// --- ¿Por qué aprenderlo? ---
+{q:"Según el tema, ¿por qué es importante aprender el proceso enfermero?", o:[
+ ["Porque desarrolla el pensamiento crítico, la enfermería reflexiva y permite usar planes de cuidados estandarizados (PCE).","Correcto: son las tres razones del tema."],
+ ["Porque permite memorizar protocolos y trabajar más rápido.","Incorrecto: el objetivo no es memorizar ni la rapidez, sino razonar y mejorar los cuidados."],
+ ["Porque sustituye el trabajo en equipo con el médico.","Incorrecto: no sustituye el trabajo en equipo; es la metodología propia de enfermería dentro del equipo."]]},
+
+{q:"¿Qué es el pensamiento crítico?", o:[
+ ["La capacidad de analizar, evaluar y reflexionar de forma lógica y objetiva para tomar decisiones fundamentadas.","Correcto: es pensar con razones y datos antes de decidir."],
+ ["Repetir siempre lo que se ha hecho antes porque funciona.","Incorrecto: eso es actuar por rutina. El pensamiento crítico analiza cada situación de nuevo."],
+ ["Criticar el trabajo de los compañeros.","Incorrecto: “crítico” aquí no significa criticar a otros, sino analizar con lógica y objetividad."]]},
+
+{q:"Gracias al pensamiento crítico, las decisiones clínicas se basan en…", o:[
+ ["…la evidencia, no en la rutina.","Correcto: el tema dice que permite analizar cada situación de forma razonada y decidir con evidencia, no por rutina."],
+ ["…la rutina del servicio.","Incorrecto: la rutina es justo lo que el pensamiento crítico intenta evitar."],
+ ["…lo que opina la mayoría del equipo.","Incorrecto: la opinión del equipo se escucha, pero la decisión debe apoyarse en evidencia y en los datos del paciente."]]},
+
+{q:"¿Qué es la enfermería reflexiva?", o:[
+ ["Un enfoque en el que la enfermera piensa sobre su propia práctica, aprende de sus experiencias y mejora continuamente.","Correcto: fomenta una práctica consciente y responsable."],
+ ["Registrar por escrito todo lo que se hace en el turno.","Incorrecto: registrar es obligatorio, pero reflexionar es analizar lo que hiciste para mejorar."],
+ ["Seguir las órdenes sin cuestionarlas.","Incorrecto: la enfermería reflexiva hace lo contrario: piensa y se cuestiona cómo mejorar."]]},
+
+{q:"La enfermería reflexiva integra en el ejercicio profesional…", o:[
+ ["…el pensamiento crítico, la autoevaluación y la empatía.","Correcto: son los tres elementos que nombra el tema."],
+ ["…la memoria, la velocidad y la obediencia.","Incorrecto: ninguno de esos tres es lo que define a la enfermería reflexiva."],
+ ["…la técnica, la fuerza física y la disciplina.","Incorrecto: son útiles, pero no son los elementos de la enfermería reflexiva."]]},
+
+{q:"Después de un turno de prácticas, piensas qué salió mal con un paciente y qué harás distinto la próxima vez. ¿Qué estás practicando?", o:[
+ ["Enfermería reflexiva.","Correcto: reflexionas sobre tu actuación, aprendes de la experiencia y buscas mejorar."],
+ ["Un plan de cuidados estandarizado.","Incorrecto: un PCE es un documento con intervenciones ya definidas, no una reflexión personal."],
+ ["La fase de valoración.","Incorrecto: la valoración recoge datos del paciente; aquí estás analizando tu propia práctica."]]},
+
+{q:"¿Qué significan las siglas PCE?", o:[
+ ["Planes de Cuidados Estandarizados.","Correcto: así aparece en el tema."],
+ ["Proceso de Cuidados Enfermeros.","Incorrecto: suena parecido, pero el proceso se llama PE o PAE, no PCE."],
+ ["Protocolo Clínico de Evaluación.","Incorrecto: es un nombre inventado. PCE = Planes de Cuidados Estandarizados."]]},
+
+{q:"¿Qué son los planes de cuidados estandarizados (PCE)?", o:[
+ ["Documentos o guías estructuradas con intervenciones ya definidas para un diagnóstico o problema de salud concreto.","Correcto: recogen de antemano qué intervenciones se recomiendan para un problema concreto."],
+ ["Planes que cada enfermera improvisa para cada paciente.","Incorrecto: un plan improvisado no está estandarizado. Los PCE están definidos previamente."],
+ ["Informes médicos que se entregan al alta.","Incorrecto: no son informes médicos; son guías de cuidados de enfermería."]]},
+
+{q:"¿En qué se basan los planes de cuidados estandarizados?", o:[
+ ["En la evidencia científica y en la práctica clínica.","Correcto: así lo dice el tema; por eso son fiables."],
+ ["En la opinión personal de quien los escribe.","Incorrecto: no dependen de opiniones, sino de evidencia y práctica clínica."],
+ ["En la tradición del hospital.","Incorrecto: la costumbre no es una base válida; deben apoyarse en evidencia."]]},
+
+{q:"Los PCE se apoyan en lenguajes enfermeros reconocidos como…", o:[
+ ["…NANDA, NIC y NOC.","Correcto: NANDA para diagnósticos, NOC para resultados y NIC para intervenciones."],
+ ["…la CIE y el DSM.","Incorrecto: son clasificaciones de enfermedades y trastornos (uso médico), no lenguajes enfermeros."],
+ ["…ECG, TA y FC.","Incorrecto: son pruebas y constantes vitales, no clasificaciones del lenguaje enfermero."]]},
+
+{q:"¿Qué garantizan los planes de cuidados estandarizados?", o:[
+ ["Calidad, continuidad y coherencia en la atención.","Correcto: todas las enfermeras siguen una misma base, así los cuidados no cambian sin motivo de un turno a otro."],
+ ["Que cada enfermera haga lo que prefiera.","Incorrecto: es lo contrario; buscan que los cuidados sean coherentes entre profesionales."],
+ ["Que no haga falta registrar nada.","Incorrecto: los registros siguen siendo necesarios."]]},
+
+{q:"Además de calidad y continuidad, los PCE permiten…", o:[
+ ["…un uso eficiente de los recursos humanos y materiales.","Correcto: el tema lo indica; al tener las intervenciones definidas, se organizan mejor el personal y el material."],
+ ["…gastar más material para asegurar el resultado.","Incorrecto: lo que buscan es eficiencia, no gastar más."],
+ ["…reducir el número de enfermeras a una por planta.","Incorrecto: un uso eficiente de recursos no significa eliminar personal necesario."]]},
+
+{q:"Tienes un PCE para un problema concreto y un paciente real con ese problema. ¿Qué es lo más correcto?", o:[
+ ["Usarlo como base y adaptarlo a ese paciente.","Correcto: el PCE da una base de calidad, pero los cuidados deben ser individualizados y humanísticos, así que se adapta a cada persona."],
+ ["Aplicarlo exactamente igual, sin cambiar nada.","Incorrecto: ignoraría que el proceso es humanístico e individualizado. Cada paciente es diferente."],
+ ["No usarlo nunca, porque cada paciente es distinto.","Incorrecto: perderías sus ventajas (calidad, continuidad, coherencia). Lo correcto es usarlo y adaptarlo."]]},
+
+// --- Finalidad ---
+{q:"¿Cuál es la finalidad general del proceso enfermero?", o:[
+ ["Conseguir objetivos enfermeros.","Correcto: todo el proceso está dirigido a lograr objetivos de cuidado en la persona."],
+ ["Diagnosticar enfermedades.","Incorrecto: diagnosticar enfermedades es tarea médica."],
+ ["Reducir el trabajo de la enfermera.","Incorrecto: organiza el trabajo, pero su finalidad son los objetivos de salud del paciente."]]},
+
+{q:"¿Cuál de estas es una finalidad del proceso enfermero?", o:[
+ ["Prevenir la enfermedad.","Correcto: es la primera finalidad que aparece en el tema."],
+ ["Prescribir tratamientos médicos.","Incorrecto: prescribir tratamientos médicos no es una finalidad del proceso enfermero."],
+ ["Sustituir la consulta médica.","Incorrecto: el proceso enfermero complementa el trabajo del equipo; no sustituye al médico."]]},
+
+{q:"Respecto a la salud, el proceso enfermero busca…", o:[
+ ["…promoverla, mantenerla o restaurarla.","Correcto: promover (mejorarla), mantener (conservarla) y restaurar (recuperarla cuando se ha perdido)."],
+ ["…solo restaurarla cuando ya se ha perdido.","Incorrecto: restaurar es una parte, pero también busca promover y mantener la salud."],
+ ["…solo mantenerla tal como está.","Incorrecto: mantener es una parte; también se promueve y se restaura."]]},
+
+{q:"Una de las finalidades es potenciar el bienestar y las capacidades de la persona para…", o:[
+ ["…actuar según los roles que desea.","Correcto: se busca que la persona pueda seguir con su vida y sus roles (madre, trabajador, estudiante…) como ella quiere."],
+ ["…depender siempre de los profesionales.","Incorrecto: es lo contrario; se busca su autonomía, no la dependencia."],
+ ["…cumplir lo que el hospital decide por ella.","Incorrecto: se respetan los deseos de la persona, no se le imponen roles."]]},
+
+{q:"El proceso enfermero busca proporcionar cuidados de acuerdo con…", o:[
+ ["…los deseos y necesidades del individuo.","Correcto: se adapta a lo que la persona necesita y desea (enfoque humanístico)."],
+ ["…las preferencias de organización del hospital.","Incorrecto: la organización importa, pero la finalidad son la persona y sus necesidades."],
+ ["…las costumbres de cada enfermera.","Incorrecto: los cuidados no se basan en costumbres personales."]]},
+
+{q:"Otra finalidad del proceso enfermero es aumentar…", o:[
+ ["…la satisfacción del usuario con los cuidados de salud.","Correcto: un cuidado individualizado y organizado mejora la experiencia de la persona."],
+ ["…el número de ingresos hospitalarios.","Incorrecto: no tiene sentido como objetivo; se busca prevenir y mejorar la salud, no que haya más ingresos."],
+ ["…el tiempo de hospitalización.","Incorrecto: alargar el ingreso no es una finalidad; lo que se busca es la mejor recuperación."]]},
+
+{q:"¿Cuál de estas NO es una finalidad del proceso enfermero?", o:[
+ ["Sustituir el tratamiento médico.","Correcto, NO lo es: el proceso enfermero se centra en los cuidados enfermeros y trabaja junto al tratamiento médico, no lo reemplaza."],
+ ["Promover, mantener o restaurar la salud.","Sí es una finalidad del tema."],
+ ["Aumentar la satisfacción del usuario.","Sí es una finalidad del tema."]]},
+
+{q:"Una enfermera de un centro de salud enseña a una persona sana a llevar una alimentación saludable. ¿Se puede aplicar aquí el proceso enfermero?", o:[
+ ["Sí, porque una de sus finalidades es prevenir la enfermedad y promover la salud.","Correcto: no hace falta estar enfermo; el proceso también sirve para prevenir y promover la salud."],
+ ["No, porque solo se aplica a pacientes enfermos.","Incorrecto: prevenir la enfermedad y promover la salud son finalidades del proceso, y se aplican a personas sanas."],
+ ["No, porque solo se aplica en el hospital.","Incorrecto: se aplica en cualquier lugar donde se den cuidados: centro de salud, domicilio, comunidad u hospital."]]}
+]}
+]}
+];
+
+/* ===== STORAGE (solo en este dispositivo) ===== */
+const KEY = "ech-mcq-progress-v1";
+let prog = {};
+try { prog = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { prog = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(prog)); } catch(e){} }
+
+/* ===== HELPERS ===== */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const allTopics = () => SECTIONS.flatMap(s => s.topics);
+const qid = (t,i) => t.id + "-" + i;
+function topicStats(t){
+  let ok=0, bad=0;
+  t.qs.forEach((_,i)=>{ const p=prog[qid(t,i)]; if(!p) return; p.ok ? ok++ : bad++; });
+  return {ok, bad, total:t.qs.length};
+}
+const LOGO = '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0 1 16 10.4a5.6 5.6 0 0 1 10 3.4C26 20.8 16 27 16 27Z" fill="#1D9E75"/><path d="M6.5 16h5l2-3.5 3 6.5 2-3h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* ===== HOME ===== */
+let confirmReset = false;
+function home(){
+  session = null;
+  let ok=0,bad=0,total=0;
+  allTopics().forEach(t=>{ const s=topicStats(t); ok+=s.ok; bad+=s.bad; total+=s.total; });
+  const pct = (ok+bad) ? Math.round(ok/(ok+bad)*100) : 0;
+  let html = `
+  <header class="brand"><div class="logo">${LOGO}</div><div><h1>Enfermería con Hafsa</h1><p>Preguntas de estudio · De la teoría a la práctica clínica</p></div></header>
+  <div class="stats">
+    <div class="stat"><b>${total}</b><span>Preguntas</span></div>
+    <div class="stat"><b>${ok+bad}</b><span>Respondidas</span></div>
+    <div class="stat"><b>${pct}%</b><span>Aciertos</span></div>
+  </div>`;
+  SECTIONS.forEach(sec=>{
+    html += `<section class="topics"><div class="section-h"><h2>${esc(sec.name)}</h2><span>${sec.topics.length} ${sec.topics.length===1?"tema":"temas"}</span></div>`;
+    sec.topics.forEach(t=>{
+      const s = topicStats(t);
+      const g = s.ok/s.total*100, r = s.bad/s.total*100;
+      html += `<article class="topic">
+        <div class="topic-top"><div><h3>${esc(t.name)}</h3><div class="meta">${s.total} preguntas · 3 opciones</div></div>
+        <div class="pct">${Math.round(g)}%</div></div>
+        <div class="bar" role="img" aria-label="${s.ok} correctas, ${s.bad} falladas de ${s.total}"><i class="g" style="width:${g}%"></i><i class="r" style="width:${r}%"></i></div>
+        <div class="legend"><span style="--c:var(--ok)">${s.ok} bien</span><span style="--c:var(--bad)">${s.bad} fallos</span><span style="--c:var(--line)">${s.total-s.ok-s.bad} sin hacer</span></div>
+        <div class="actions">
+          <button class="btn" id="start-${t.id}" data-start="${t.id}">Empezar</button>
+          <button class="btn alt" id="wrong-${t.id}" data-wrong="${t.id}" ${s.bad?"":"disabled"}>Repasar fallos (${s.bad})</button>
+        </div></article>`;
+    });
+    html += `</section>`;
+  });
+  html += `<p class="note">Tu progreso se guarda en este dispositivo.</p>
+    <div class="confirm">${confirmReset
+      ? `<span class="note">¿Borrar todo el progreso?</span><button class="btn alt warn" id="reset-yes">Sí, borrar</button><button class="btn alt" id="reset-no">Cancelar</button>`
+      : `<button class="btn alt" id="reset">Borrar progreso</button>`}</div>`;
+  app.innerHTML = html;
+  app.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>start(b.dataset.start,false));
+  app.querySelectorAll("[data-wrong]").forEach(b=>b.onclick=()=>start(b.dataset.wrong,true));
+  const r=document.getElementById("reset"); if(r) r.onclick=()=>{confirmReset=true;home();};
+  const y=document.getElementById("reset-yes"); if(y) y.onclick=()=>{prog={};save();confirmReset=false;home();};
+  const n=document.getElementById("reset-no"); if(n) n.onclick=()=>{confirmReset=false;home();};
+  window.scrollTo(0,0);
+}
+
+/* ===== QUIZ ===== */
+let session = null;
+function start(topicId, onlyWrong){
+  const t = allTopics().find(x=>x.id===topicId);
+  let items = t.qs.map((q,i)=>({q, id:qid(t,i)}));
+  if (onlyWrong) items = items.filter(it=>prog[it.id] && !prog[it.id].ok);
+  if (!items.length) return home();
+  session = {t, onlyWrong, items:shuffle(items), i:0, score:0};
+  question();
+}
+function question(){
+  const s = session, it = s.items[s.i];
+  const order = shuffle([0,1,2]);
+  app.innerHTML = `
+  <div class="qhead"><button class="back" id="quit">← Salir</button><span class="counter">${s.i+1} / ${s.items.length}</span></div>
+  <div class="progress"><i style="width:${s.i/s.items.length*100}%"></i></div>
+  <div class="card">
+    <div class="eyebrow">${esc(s.t.name)}${s.onlyWrong?" · Repaso de fallos":""}</div>
+    <div class="question">${esc(it.q.q)}</div>
+    <div class="opts">${order.map((k,n)=>`<button class="opt" id="opt-${n}" data-k="${k}"><span class="letter">${"ABC"[n]}</span><span>${esc(it.q.o[k][0])}</span></button>`).join("")}</div>
+    <div id="after"></div>
+  </div>`;
+  document.getElementById("quit").onclick = home;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.k, order));
+  window.scrollTo(0,0);
+}
+function answer(k, order){
+  const s = session, it = s.items[s.i], right = k===0;
+  app.querySelectorAll(".opt").forEach(b=>{
+    const kk = +b.dataset.k; b.disabled = true;
+    if (kk===0) b.classList.add("correct");
+    else if (kk===k) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  if (right) s.score++;
+  prog[it.id] = {ok:right, n:((prog[it.id]||{}).n||0)+1};
+  save();
+  const letter = kk => "ABC"[order.indexOf(kk)];
+  const exOrder = [0, ...order.filter(x=>x!==0)];
+  const last = s.i === s.items.length-1;
+  document.getElementById("after").innerHTML = `
+    <div class="verdict ${right?"ok":"bad"}">${right?"¡Correcto!":"Incorrecto. La respuesta correcta es la "+letter(0)+"."}</div>
+    <div class="explain">${exOrder.map(kk=>`
+      <div class="ex" style="--c:${kk===0?"var(--ok)":"var(--bad)"}">
+        <div class="h">${kk===0?"✓":"✗"} ${letter(kk)}. ${esc(it.q.o[kk][0])}${kk===k?'<span class="tag">Tu respuesta</span>':""}</div>
+        <p>${esc(it.q.o[kk][1])}</p>
+      </div>`).join("")}
+    </div>
+    <button class="btn next" id="next">${last?"Ver resultado":"Siguiente →"}</button>`;
+  const nx = document.getElementById("next");
+  nx.onclick = ()=>{ s.i++; s.i < s.items.length ? question() : result(); };
+  nx.focus({preventScroll:true});
+}
+function result(){
+  const s = session, pct = Math.round(s.score/s.items.length*100);
+  const st = topicStats(s.t);
+  app.innerHTML = `
+  <div class="card result">
+    <div class="eyebrow">${esc(s.t.name)}</div>
+    <div class="big">${s.score}/${s.items.length}</div>
+    <h2>${pct>=80?"¡Muy bien!":pct>=50?"Vas por buen camino":"Toca repasar"}</h2>
+    <p class="note">${pct}% de aciertos en esta ronda · ${st.bad} preguntas pendientes de repasar en el tema</p>
+    <div class="actions" style="justify-content:center">
+      <button class="btn" id="again">Repetir tema</button>
+      <button class="btn alt" id="rev" ${st.bad?"":"disabled"}>Repasar fallos (${st.bad})</button>
+      <button class="btn alt" id="home">Inicio</button>
+    </div>
+  </div>`;
+  document.getElementById("again").onclick=()=>start(s.t.id,false);
+  document.getElementById("rev").onclick=()=>start(s.t.id,true);
+  document.getElementById("home").onclick=home;
+}
+
+home();
+</script>
